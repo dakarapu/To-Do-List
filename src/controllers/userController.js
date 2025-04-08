@@ -1,4 +1,4 @@
-export class User {
+class User {
   constructor(fname, lname, username, password, email, empId, role) {
     this.fname = fname;
     this.lname = lname;
@@ -14,7 +14,7 @@ export class User {
   }
 }
 
-export class UserManager {
+class UserManager {
   constructor() {
     this.users = new Map();
   }
@@ -31,9 +31,7 @@ export class UserManager {
 
   getUserById(empId) {
     const id = +empId;
-    return this.users.has(id)
-      ? this.users.get(id)
-      : `No user found with provided empId: ${id}`;
+    return this.users.has(id) ? this.users.get(id) : `No user found with provided empId: ${id}`;
   }
 
   getUsers() {
@@ -68,3 +66,35 @@ export class UserManager {
   }
 }
 
+const userManager = new UserManager();
+
+export const getUsers = (req, res) => {
+  const users = userManager.getUsers();
+  res.status(200).send(users);
+};
+
+export const createUser = (req, res) => {
+  const { fname, lname, username, password, email, empId, role } = req.body;
+  const userData = new User(fname, lname, username, password, email, empId, role);
+  const result = userManager.createUser(userData);
+  res.status(201).send(result);
+};
+
+export const getUser = (req, res) => {
+  const id = req.params.id;
+  const user = userManager.getUserById(id);
+  res.status(200).send(user);
+};
+
+export const updateUser = (req, res) => {
+  const id = req.params.id;
+  const data = req.body;
+  const user = userManager.updateUser(id, data);
+  res.status(200).send(user);
+};
+
+export const deleteUser = (req, res) => {
+  const id = req.params.id;
+  const user = userManager.deleteUser(id);
+  res.status(200).send(user);
+};
