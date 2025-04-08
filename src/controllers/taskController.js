@@ -54,3 +54,34 @@ export class Task {
     return this.list;
   }
 }
+
+const task = new Task();
+
+export const getTasks = (req, res) => {
+  console.log(req.url);
+  const data = task.getAllTasks();
+  res.status(200).send(data);
+};
+
+export const createTask = (req, res) => {
+  const dataReceived = req.body;
+  const newTask = task.createTask(dataReceived);
+  res.status(201).send(newTask);
+};
+
+export const getTask = (req, res) => {
+  const data = task.getTask(parseInt(req.params.id));
+  res.status(200).send(data);
+};
+
+export const deleteTask = (req, res) => {
+  const id = req.params.id;
+  const data = task.deleteTask(id);
+  res.status(200).send(data);
+};
+
+export const updateTask = (req, res) => {
+  const dataReceived = req.body;
+  const newTask = task.updateTask(dataReceived);
+  res.status(200).send(newTask);
+};
