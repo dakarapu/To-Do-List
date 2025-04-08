@@ -1,3 +1,5 @@
+import { hashPassword, validPassword, generateToken } from '../middlewares/auth.js';
+
 class User {
   constructor(fname, lname, username, password, email, empId, role) {
     this.fname = fname;
@@ -73,9 +75,10 @@ export const getUsers = (req, res) => {
   res.status(200).send(users);
 };
 
-export const createUser = (req, res) => {
+export const createUser = async (req, res) => {
   const { fname, lname, username, password, email, empId, role } = req.body;
-  const userData = new User(fname, lname, username, password, email, empId, role);
+  const hash = await hashPassword(password);
+  const userData = new User(fname, lname, username, hash, email, empId, role);
   const result = userManager.createUser(userData);
   res.status(201).send(result);
 };
@@ -97,4 +100,17 @@ export const deleteUser = (req, res) => {
   const id = req.params.id;
   const user = userManager.deleteUser(id);
   res.status(200).send(user);
+};
+
+export const authenticateUser = async (req, res) => {
+  const { username, password, empId } = req.body;
+  const user = userManager.getUserById(+empId);
+
+  if (user.username !== username)
+    return res.status(401).send(`User not found with details provided`);
+  const isValid = await validPassword(password, user.password);
+
+  if (!isValid) return res.status(401).send(`Invalid credentials`);
+  const token = generateToken(username, empId);
+  res.status(200).send({ message: `Login successful`, token });
 };
