@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import util from 'util';
 
 export const hashPassword = async (pwd) => {
   try {
@@ -22,4 +23,18 @@ export const validPassword = async (pwd, hash) => {
 export const generateToken = (username, empId) => {
   const token = jwt.sign({ username, empId }, process.env.JWT_SECRET, { expiresIn: '1h' });
   return token;
+};
+
+export const authenticateToken = async (req, res, next) => {
+  try {
+    const token = req.headers.authentication;
+    if (!token) return res.status(401).send(`Unauthorized request, please login.`);
+
+    const jwtVerify = util.promisify(jwt.verify);
+    const verifiedUser = await jwtVerify(token, process.env.JWT_SECRET);
+    req.user = verifiedUser;
+  } catch (e) {
+    return res.status(403).send(`Invalid token.`);
+  }
+  next();
 };

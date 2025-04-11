@@ -8,7 +8,11 @@ import {
   authenticateUser
 } from '../controllers/userController.js';
 
+import { authenticateToken } from '../middlewares/auth.js';
+
 export const userRouter = express.Router();
+
+userRouter.use('/users', authenticateToken);
 
 userRouter.route('/users').get(getUsers);
 
